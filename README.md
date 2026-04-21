@@ -96,3 +96,30 @@ ip dhcp pool MUHASEBE_HAVUZU
  network 192.168.20.0 255.255.255.0
  default-router 192.168.20.1
  dns-server 8.8.8.8
+---
+
+## 🔒 v3.0 Güncellemesi: Uzaktan Güvenli Yönetim (SSH)
+
+Gerçek dünya kurumsal ağ senaryolarında fiziksel cihazlara doğrudan müdahale etmek yerine uzaktan yönetim esastır. Bu güncelleme ile cihaz yönetim ağı güvence altına alınmıştır.
+
+### Neden Telnet Yerine SSH Kullandık?
+Telnet protokolü verileri (kullanıcı adı ve şifreler dahil) ağ üzerinde açık metin (clear-text) olarak iletir. Ağ dinleme (sniffing) saldırılarına karşı koymak için tüm veriyi kriptolojik olarak şifreleyen SSH (Secure Shell) yapılandırılmıştır.
+
+### SSH Yapılandırma Komutları (Router)
+Router üzerinde RSA anahtarları üretilmiş, lokal yönetici hesabı oluşturulmuş ve VTY (sanal terminal) portları sadece SSH kabul edecek şekilde ayarlanmıştır:
+
+```bash
+# Kimlik ve Domain Belirleme
+hostname MerkezRouter
+ip domain-name sirket.local
+
+# RSA Şifreleme Anahtarının Üretilmesi (1024 bit)
+crypto key generate rsa 
+
+# En Üst Düzey Yetkili (Privilege 15) Yönetici Hesabı
+username admin privilege 15 secret 123456
+
+# Sanal Portların (VTY) Sadece SSH'a Açılması
+line vty 0 4
+ login local
+ transport input ssh
