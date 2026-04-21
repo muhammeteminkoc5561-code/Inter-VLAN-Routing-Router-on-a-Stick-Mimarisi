@@ -68,3 +68,31 @@ interface gigabitEthernet 0/0.10
 interface gigabitEthernet 0/0.20
  encapsulation dot1Q 20
  ip address 192.168.20.1 255.255.255.0
+
+ ## 🚀 v2.0 Güncellemesi: DHCP (Otomatik IP Dağıtımı) Entegrasyonu
+
+Ağın büyümesi ve yeni cihazların eklenmesi senaryosuna karşılık, manuel IP atama (Statik IP) işlemi terk edilerek Router üzerinde bir DHCP sunucusu yapılandırılmıştır.
+
+### Neden DHCP Kurduk?
+* **Yönetim Kolaylığı:** Yüzlerce cihaza tek tek IP girmek yerine süreç otomatikleştirildi.
+* **Hata Engelleme (IP Conflict):** İnsan kaynaklı aynı IP'yi iki cihaza verme hatalarının önüne geçildi.
+
+### DHCP Yapılandırma Komutları
+Router üzerinde her VLAN için ayrı IP havuzları oluşturulmuş ve ağ geçidi (Gateway) adresleri çakışmayı önlemek için dağıtım dışı bırakılmıştır:
+
+```bash
+# Gateway IP'lerini Dağıtımdan Çıkarma (Çakışma Önlemi)
+ip dhcp excluded-address 192.168.10.1
+ip dhcp excluded-address 192.168.20.1
+
+# IT Departmanı İçin DHCP Havuzu
+ip dhcp pool IT_HAVUZU
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8
+
+# Muhasebe Departmanı İçin DHCP Havuzu
+ip dhcp pool MUHASEBE_HAVUZU
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+ dns-server 8.8.8.8
