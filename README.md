@@ -1,125 +1,112 @@
-Inter-VLAN Routing (Router on a Stick) Mimarisi 🚀
-Bu proje, kurumsal ağ altyapılarında departmanları (VLAN) birbirinden izole etmek ve bu izole ağları tek bir fiziksel yönlendirici (Router) üzerinden güvenli bir şekilde konuşturmak amacıyla hazırlanmış bir Cisco Packet Tracer simülasyonudur.
+Inter-VLAN Routing (Router on a Stick) Architecture 🚀
+This project is a Cisco Packet Tracer simulation designed to isolate departments (VLANs) within enterprise network infrastructures and enable secure communication between these isolated networks via a single physical router.
 
-📌 Proje Amacı ve Senaryo
-Bir şirket ağında IT ve Muhasebe departmanlarının ağ trafiğinin güvenliği ve performansı için birbirinden ayrılması (VLAN) sağlanmıştır. Ardından, bu iki farklı departmanın birbiriyle veya dış ağlarla iletişim kurabilmesi için "Router on a Stick" modeli kullanılarak 802.1Q trunking yapılandırılmıştır.
+📌 Project Objective and Scenario
+In this corporate network scenario, the IT and Accounting departments are separated into different VLANs to enhance security and network performance. To allow these departments to communicate with each other or external networks, an 802.1Q trunking configuration was implemented using the "Router on a Stick" model.
 
-🧠 Teknik Detaylar ve Mantık
-Neden VLAN Yapılandırdık?
-Şirket içerisinde farklı departmanların (IT ve Muhasebe) ağ trafiğini birbirinden izole ederek veri güvenliğini sağladık. Bu sayede bir departmandaki olası bir ağ sorunu veya güvenlik açığı diğerini etkilemez.
+🧠 Technical Logic & Design
+Why did we configure VLANs?
+By isolating departmental traffic (IT and Accounting), we ensured data security. This segmentation prevents a potential network issue or security breach in one department from affecting the other.
 
-Router on a Stick Mantığı
-Fiziksel router üzerinde her VLAN için ayrı bir kablo çekmek yerine, tek bir fiziksel arayüzü (Gig0/0) mantıksal alt arayüzlere (sub-interfaces) böldük. Bu yöntem:
+The "Router on a Stick" Logic
+Instead of using a separate physical cable for every VLAN on the router, we divided a single physical interface (Gig0/0) into logical sub-interfaces. This method provides:
 
-Maliyet Tasarrufu: Daha az fiziksel port kullanımı sağlar.
+Cost Efficiency: Minimizes the use of physical router ports.
 
-Esneklik: Yeni VLAN'lar eklemek fiziksel müdahale gerektirmez.
+Flexibility: Allows adding new VLANs without needing physical hardware changes.
 
-🛠️ Kullanılan Teknolojiler ve Protokoller
-VLAN (Virtual Local Area Network): Ağ izolasyonu (VLAN 10 ve VLAN 20).
+🛠️ Technologies and Protocols Used
+VLAN (Virtual Local Area Network): Network isolation (VLAN 10 and VLAN 20).
 
-802.1Q Encapsulation: Trunk portlar üzerinden geçen trafiğin etiketlenmesi.
+802.1Q Encapsulation: Tagging traffic passing through trunk ports.
 
-Sub-interfaces (Sanal Arayüzler): Router üzerinde tek fiziksel portun mantıksal olarak bölünmesi.
+Sub-interfaces: Logical partitioning of a single physical router port.
 
-ICMP (Ping): Uçtan uca ağ erişilebilirliğinin test edilmesi.
+ICMP (Ping): Used for testing end-to-end network connectivity.
 
-📸 Topoloji ve Başarı Durumu
-(Buraya yüklediğin topoloji görselinin linkini ekle)
-
-(Buraya ping testinin başarılı olduğunu gösteren CMD görselinin linkini ekle)
-
-💻 Yapılandırma Komutları Özeti
-1. Switch Yapılandırması (VLAN ve Trunk)
-Switch üzerinde departmanlar oluşturulmuş, ilgili portlar bu departmanlara atanmış ve Router'a giden port otoban (Trunk) haline getirilmiştir:
+💻 Configuration Summary
+1. Switch Configuration (VLAN & Trunk)
+VLANs were created on the switch, ports were assigned to relevant departments, and the link to the router was configured as a Trunk port:
 
 Bash
-# VLAN'ların Oluşturulması
+# Creating VLANs
 vlan 10
  name IT
 vlan 20
- name Muhasebe
+ name Accounting
 
-# Erişim Portlarının (Access) Ayarlanması
+# Setting up Access Ports
 interface fastEthernet 0/1
  switchport mode access
  switchport access vlan 10
+
 interface fastEthernet 0/2
  switchport mode access
  switchport access vlan 20
 
-# Trunk Portun Ayarlanması
+# Setting up the Trunk Port
 interface gigabitEthernet 0/1
  switchport mode trunk
-2. Router Yapılandırması (Sub-interfaces)
-Router üzerindeki tek bir fiziksel port, her VLAN için ayrı bir sanal ağ geçidine (Gateway) dönüştürülmüştür:
+2. Router Configuration (Sub-interfaces)
+The single physical port on the router was converted into separate logical gateways for each VLAN:
 
 Bash
-# Ana Portun Aktifleştirilmesi
+# Activating the physical interface
 interface gigabitEthernet 0/0
  no shutdown
 
-# IT Departmanı (VLAN 10) İçin Alt Arayüz
+# Sub-interface for IT (VLAN 10)
 interface gigabitEthernet 0/0.10
  encapsulation dot1Q 10
  ip address 192.168.10.1 255.255.255.0
 
-# Muhasebe Departmanı (VLAN 20) İçin Alt Arayüz
+# Sub-interface for Accounting (VLAN 20)
 interface gigabitEthernet 0/0.20
  encapsulation dot1Q 20
  ip address 192.168.20.1 255.255.255.0
+🚀 v2.0 Update: DHCP Integration
+To accommodate network growth, manual IP assignment (Static IP) was replaced by a DHCP Server configured directly on the Router.
 
- ## 🚀 v2.0 Güncellemesi: DHCP (Otomatik IP Dağıtımı) Entegrasyonu
+Why DHCP?
 
-Ağın büyümesi ve yeni cihazların eklenmesi senaryosuna karşılık, manuel IP atama (Statik IP) işlemi terk edilerek Router üzerinde bir DHCP sunucusu yapılandırılmıştır.
+Management Ease: Automated the process instead of manually configuring hundreds of devices.
 
-### Neden DHCP Kurduk?
-* **Yönetim Kolaylığı:** Yüzlerce cihaza tek tek IP girmek yerine süreç otomatikleştirildi.
-* **Hata Engelleme (IP Conflict):** İnsan kaynaklı aynı IP'yi iki cihaza verme hatalarının önüne geçildi.
+Error Prevention: Prevented "IP Conflict" issues caused by human error.
 
-### DHCP Yapılandırma Komutları
-Router üzerinde her VLAN için ayrı IP havuzları oluşturulmuş ve ağ geçidi (Gateway) adresleri çakışmayı önlemek için dağıtım dışı bırakılmıştır:
-
-```bash
-# Gateway IP'lerini Dağıtımdan Çıkarma (Çakışma Önlemi)
+Bash
+# Excluding Gateway IPs from the pool (To prevent conflicts)
 ip dhcp excluded-address 192.168.10.1
 ip dhcp excluded-address 192.168.20.1
 
-# IT Departmanı İçin DHCP Havuzu
-ip dhcp pool IT_HAVUZU
+# DHCP Pool for IT Department
+ip dhcp pool IT_POOL
  network 192.168.10.0 255.255.255.0
  default-router 192.168.10.1
  dns-server 8.8.8.8
 
-# Muhasebe Departmanı İçin DHCP Havuzu
-ip dhcp pool MUHASEBE_HAVUZU
+# DHCP Pool for Accounting Department
+ip dhcp pool ACC_POOL
  network 192.168.20.0 255.255.255.0
  default-router 192.168.20.1
  dns-server 8.8.8.8
----
+🔒 v3.0 Update: Secure Remote Management (SSH)
+In real-world enterprise environments, remote management is essential. This update secures the device management plane.
 
-## 🔒 v3.0 Güncellemesi: Uzaktan Güvenli Yönetim (SSH)
+Why SSH instead of Telnet?
+Telnet transmits data (including usernames and passwords) in clear-text. To prevent network sniffing attacks, SSH (Secure Shell) was configured to encrypt all management traffic.
 
-Gerçek dünya kurumsal ağ senaryolarında fiziksel cihazlara doğrudan müdahale etmek yerine uzaktan yönetim esastır. Bu güncelleme ile cihaz yönetim ağı güvence altına alınmıştır.
+Bash
+# Defining Identity and Domain
+hostname CoreRouter
+ip domain-name company.local
 
-### Neden Telnet Yerine SSH Kullandık?
-Telnet protokolü verileri (kullanıcı adı ve şifreler dahil) ağ üzerinde açık metin (clear-text) olarak iletir. Ağ dinleme (sniffing) saldırılarına karşı koymak için tüm veriyi kriptolojik olarak şifreleyen SSH (Secure Shell) yapılandırılmıştır.
-
-### SSH Yapılandırma Komutları (Router)
-Router üzerinde RSA anahtarları üretilmiş, lokal yönetici hesabı oluşturulmuş ve VTY (sanal terminal) portları sadece SSH kabul edecek şekilde ayarlanmıştır:
-
-```bash
-# Kimlik ve Domain Belirleme
-hostname MerkezRouter
-ip domain-name sirket.local
-
-# RSA Şifreleme Anahtarının Üretilmesi (1024 bit)
+# Generating RSA Encryption Keys (1024 bit)
 crypto key generate rsa 
 
-# En Üst Düzey Yetkili (Privilege 15) Yönetici Hesabı
+# Creating a Local Administrator Account (Privilege 15)
 username admin privilege 15 secret 123456
 
-# Sanal Portların (VTY) Sadece SSH'a Açılması
+# Restricting Virtual Ports (VTY) to SSH only
 line vty 0 4
  login local
  transport input ssh
